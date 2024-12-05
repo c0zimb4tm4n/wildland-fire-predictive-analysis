@@ -1,93 +1,200 @@
-# Wildfire Smoke Impact Analysis on Air Quality
+# Wildfire Smoke Impact and Health Analysis Project
 
-## Project Overview
-This project aims to analyze the impact of wildfire smoke on air quality for a specific U.S. city, using geospatial wildfire data and air quality index (AQI) data. By developing a quantitative "smoke impact" estimate, the project seeks to inform policy makers and city managers about potential wildfire-related air quality issues.
+## Overview
 
+This project examines the effects of wildfire smoke on air quality and health outcomes in the United States, with a focus on Jackson, Mississippi. By integrating geospatial wildfire data, air quality indices, and mortality data, the analysis provides insights into both immediate and long-term consequences of wildfire smoke exposure.
+
+The project is divided into two major components:
+1. **Wildfire Smoke and Air Quality Analysis**
+2. **Wildfire Smoke and Health Outcomes Analysis**
+
+---
 ## Project Structure
+```
+   Project/
+   │
+   ├── data/
+   │   ├── Fire_Feature_Data.gdb                 # Geodatabase containing wildfire data
+   │   ├── clean_aqi_data.csv                    # Cleaned AQI data with annual pollutant averages
+   │   ├── COPD.csv                              # COPD mortality data
+   │   ├── heart_diseases.csv                    # Heart disease mortality data
+   │   ├── hypertension.csv                      # Hypertension mortality data
+   │   ├── lung_cancer.csv                       # Lung cancer mortality data
+   │   ├── raw_aqi_data.csv                      # Raw AQI data with bounding box
+   │   ├── smoke_impact.csv                      # Annual smoke impact estimates
+   │   ├── total.csv                             # All-cause mortality data
+   │   ├── weighted_aqi_estimate.csv             # Weighted AQI estimates
+   │   └── Wildland_Fire_Polygon_Metadata.xml    # Metadata for wildfire polygon dataset
+   │
+   │
+   ├── output/
+   │   ├── viz1.png                              # Histogram of wildfire distances
+   │   ├── viz2.png                              # Total acres burned per year
+   │   ├── viz3.png                              # Smoke impact and AQI estimates
+   │
+   ├── src/
+   │   ├── initial_analysis.ipynb               # Notebook for smoke impact and air quality analysis
+   │   ├── data_exploration.ipynb               # Notebook for health impact analysis
+   │   ├── signup.ipynb                         # Auxiliary notebook for data setup
+   │
+   ├── LICENSE                                   # License information
+   ├── README.md                                 # Project overview and setup instructions
+   └── .gitignore                                # Git ignore file
+```
 
-- **data/**  
-  - Contains the raw and processed data files used for analysis.
-    - `Fire_Feature_Data.gdb`: Geodatabase file containing wildfire data.
-    - `aqi_data.csv`: Raw AQI data.
-    - `clean_aqi_data.csv`: Cleaned AQI data with annual averages for pollutants.
-    - `weighted_aqi_estimate.csv`: AQI data with weighted estimates per pollutant.
-    - `Wildland_Fire_Polygon_Metadata.xml`: Metadata for wildfire polygons.
-  
-- **output/**  
-  - Stores output visualizations:
-    - `viz1.png`: Histogram of wildfire distances.
-    - `viz2.png`: Total acres burned per year.
-    - `viz3.png`: Smoke impact and AQI estimates over time.
-  
-- **src/**  
-  - Contains Jupyter notebooks for analysis:
-    - `initial_analysis.ipynb`: Primary notebook for conducting analyses.
-    - `signup.ipynb`: Auxiliary notebook for data setup.
+---
 
-- **.gitignore**  
-  - Specifies files and directories to be ignored by Git.
+## Data Sources
 
-- **LICENSE**  
-  - Project license information.
+### 1. **Wildland Fire Data**
+- **Source**: U.S. Geological Survey (USGS) Combined Wildland Fire Datasets  
+- **Description**: A comprehensive geodatabase covering wildfires and prescribed burns in the United States from 1835 to 2020. This dataset consolidates 40 existing datasets into a unified geospatial dataset with one fire polygon per year for a given area, eliminating duplicate data.  
+- **Purpose**: Provides geospatial and temporal wildfire data to estimate smoke impact on nearby regions.  
+- **Access**: [USGS Wildland Fire Dataset](https://www.sciencebase.gov/catalog/item/61aa537dd34eb622f699df81)  
+- **Key File**: `Fire_Feature_Data.gdb`  
+- **License**: Public domain under the U.S. Geological Survey's terms of use.  
+
+### 2. **Air Quality Data**
+- **Source**: U.S. Environmental Protection Agency (EPA) Air Quality System (AQS)  
+- **Description**: Hourly and daily air quality index (AQI) data for pollutants such as PM2.5, PM10, and ozone.  
+- **Purpose**: Used to evaluate the relationship between wildfire smoke and changes in air quality, focusing on pollutants most affected by smoke.  
+- **Key Files**:
+  - `aqi_data.csv`: Contains pollutant levels over time with columns for `Date`, `PM2.5`, `PM10`, `Ozone`, and `AQI`.
+  - `clean_aqi_data.csv`: A processed version with annual pollutant averages.  
+- **License**: Publicly available via EPA's Open Data Portal.  
+
+### 3. **MSTAHRS Health Data**
+- **Source**: Mississippi Statistically Automated Health Resource System (MSTAHRS)  
+- **Description**: Health statistics for Hinds County, Mississippi, focusing on annual mortality rates by cause of death. Data are categorized by age group, sex, race, and ethnicity.  
+- **Purpose**: Explores correlations between wildfire smoke and health outcomes, with a focus on respiratory and cardiovascular diseases.  
+- **Access**: [MSTAHRS Health Data](https://mstahrs.msdh.ms.gov/forms/morttable.html)  
+- **Key Files**:
+  - `birth_defects.csv`: Annual deaths due to birth defects.
+  - `COPD.csv`: Chronic Obstructive Pulmonary Disease mortality rates.
+  - `hypertension.csv`: Deaths due to hypertension.
+  - `lung_cancer.csv`: Lung cancer mortality rates.
+  - `heart_diseases.csv`: Heart disease mortality rates.
+  - `total.csv`: Total mortality rates for all causes.  
+- **License**: Publicly accessible with no usage restrictions.  
+
+---
+
+## Data Files Description
+
+### **Wildland Fire Data**
+- **File**: `Fire_Feature_Data.gdb`  
+  - **Type**: Geodatabase  
+  - **Attributes**:
+    - `Year`: Year of the fire event.
+    - `Polygon`: Spatial boundary of the wildfire.
+    - `Fire_Type`: Type of fire (wildfire or prescribed burn).
+    - `Size`: Area burned (acres).
+    - `Tier`: Data quality ranking from 1 (highest) to 8 (lowest).
+
+### **Air Quality Data**
+- **File**: `aqi_data.csv`  
+  - **Columns**:
+    - `Date`: Date of measurement.
+    - `PM2.5`: Fine particulate matter concentration (µg/m³).
+    - `PM10`: Coarse particulate matter concentration (µg/m³).
+    - `Ozone`: Ozone concentration (ppm).
+    - `AQI`: Air Quality Index value.
+
+- **File**: `clean_aqi_data.csv`  
+  - **Columns**:
+    - `Year`: Year of measurement.
+    - `Avg_PM2.5`: Annual average of PM2.5.
+    - `Avg_PM10`: Annual average of PM10.
+    - `Avg_Ozone`: Annual average of Ozone.
+    - `Annual_AQI`: Annual AQI value.
+
+### **Health Data**
+Each file (`birth_defects.csv`, `COPD.csv`, `hypertension.csv`, etc.) has the same structure:  
+- **Columns**:
+  - `Year`: Year of mortality data.
+  - `Number`: Total number of deaths for the category in that year.
+
+---
 
 ## Methodology
 
-### Part 1: Common Analysis
+### **Part 1: Wildfire Smoke and Air Quality**
+1. **Data Cleaning and Processing**:
+   - Geospatial fire polygons were filtered by proximity to urban areas.
+   - AQI data were processed to calculate annual averages.
+   
+2. **Smoke Impact Estimate**:
+   - Calculated using a formula incorporating fire size, distance to urban centers, and pollutant levels from AQI.
 
-#### Step 0: Data Acquisition
-Wildfire data was obtained from the [US Geological Survey](https://usgs.gov) as polygon shapefiles in a geodatabase format, which included location and size attributes of each fire. AQI data was retrieved via the US EPA's [AQS API](https://aqs.epa.gov).
+3. **Exploratory Data Analysis**:
+   - Visualized trends in wildfire occurrence and AQI changes over time.
+   - Mapped spatial distribution of fire events using `geopandas`.
 
-#### Step 1: Smoke Impact Estimate
-For each year from 1961-2021:
-1. **Filter Fires by Distance**  
-   - Only fires within a 650-mile radius of the assigned city were considered.
+4. **Forecasting**:
+   - Applied statistical models (ARIMA, Prophet) to predict future AQI trends based on historical smoke impact.
 
-2. **Calculate Smoke Impact**  
-   - Smoke impact was estimated using fire size (acres), distance from city, and type-based weighting. 
+### **Part 2: Wildfire Smoke and Health Outcomes**
+1. **Data Integration**:
+   - Combined smoke impact estimates with health data (e.g., `COPD.csv`, `heart_diseases.csv`).
 
-3. **Compare with AQI Data**  
-   - A weighted AQI estimate was computed for each year based on pollutant concentrations. 
+2. **Lagged Analysis**:
+   - Introduced a five-year lag to explore long-term health impacts of smoke exposure.
 
-4. **Predictive Modeling**  
-   - Forecast smoke impact for 2025-2050 using ARIMA and Prophet models.
+3. **Statistical Analysis**:
+   - Correlation analysis between wildfire smoke estimates and mortality rates.
+   - Regression models to determine the strength of associations.
 
-### Visualizations
+4. **Visualization**:
+   - Created heatmaps, scatterplots, and trendlines to illustrate relationships.
+   - Highlighted specific years with significant health and AQI changes.
 
-1. **Histogram of Wildfire Distances**  
-   - Distribution of wildfire distances from the city, with a modeling distance cut-off at 650 miles.
+---
 
-2. **Total Acres Burned Per Year**  
-   - Time-series plot of total acres burned within the 650-mile radius.
+## Outputs
 
-3. **Smoke Impact and AQI Estimates**  
-   - Comparative plot of annual smoke impact and AQI estimates.
+- **Visualizations**:
+  - `viz1.png`: Histogram of wildfire distances to urban centers.
+  - `viz2.png`: Yearly acreage burned.
+  - `viz3.png`: Smoke impact vs. AQI trends.
 
-### Part 2: Extension
-To be completed in the next project phase.
+- **Processed Data**:
+  - `weighted_aqi_estimate.csv`: Smoke impact metrics.
+  - `smoke_impact.csv`: Annual smoke exposure estimates.
 
-## Installation
+---
+
+## Installation and Usage
 
 ### Prerequisites
 - Python 3.7+
-- Packages: `pandas`, `geopandas`, `matplotlib`, `fiona`, `requests`, `prophet`, `statsmodels`, and `geopy`.
+- Required Libraries: `pandas`, `numpy`, `matplotlib`, `seaborn`, `geopandas`, `statsmodels`, `scipy`, `fiona`.
 
 ### Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/projectname.git
-   cd projectname
+   git clone https://github.com/c0zimb4tm4n/wildland-fire-predictive-analysis.git
+   cd wildfire-health-analysis
    ```
-2. Install dependencies:
+2. Install dependecies:
    ```bash
-    pip install -r requirements.txt
+   pip install -r requirements.txt
    ```
+3. Configure API keys (e.g., EPA AQS) in initial_analysis.ipynb and data_exploration.ipynb.
 
-### API Access
-Request an API key from the US EPA’s AQS API. Update your USERNAME and APIKEY in the scripts.
+### Running the Analysis
+- Part 1: Run initial_analysis.ipynb to analyze wildfire smoke and air quality data.
+- Part 2: Run data_exploration.ipynb to study health outcomes.
 
-### Usage
-Run the Jupyter notebooks in src/ for data analysis:
-  - initial_analysis.ipynb: Main analysis, data visualization, and forecasting.
 
-### License
-MIT License
+## License and Acknowledgments
+
+This project is licensed under the **MIT License**.
+
+### Data Sources
+- **Wildland Fire Data**: [USGS Wildland Fire Dataset](https://www.sciencebase.gov/catalog/item/61aa537dd34eb622f699df81)
+- **Air Quality Data**: [EPA's Air Quality System](https://www.epa.gov/aqs)
+- **Health Data**: [MSTAHRS](https://mstahrs.msdh.ms.gov/forms/morttable.html)
+
+### Acknowledgments
+We thank the **USGS Wildland Fire Advisory Group** and **MSTAHRS** for making these datasets available for research and educational purposes.
+
