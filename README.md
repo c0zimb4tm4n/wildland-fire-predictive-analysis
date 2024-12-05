@@ -163,6 +163,20 @@ Each file (`birth_defects.csv`, `COPD.csv`, `hypertension.csv`, etc.) has the sa
 
 ---
 
+## Insights and Findings
+
+### Wildfire Smoke and Air Quality
+- **Strong positive correlation** between wildfire smoke and AQI metrics, especially PM2.5.
+- Predictive models indicate **increasing smoke impact** due to climate change.
+
+### Wildfire Smoke and Health Outcomes
+- Significant correlations observed between smoke impact and:
+  - **COPD mortality rates** (immediate impact).
+  - **Hypertension and lung cancer** (lagged impact).
+- Long-term exposure to wildfire smoke poses **serious public health risks**.
+
+---
+
 ## Installation and Usage
 
 ### Prerequisites
